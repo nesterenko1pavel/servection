@@ -1,4 +1,4 @@
-package ru.evolinc.servection
+package ru.evolinc.servection.kotlinsample
 
 import ru.evolinc.servection.di.DiContainer
 import ru.evolinc.servection.di.DiContainerImpl
@@ -30,7 +30,7 @@ class CarMuseum : DiContainer by DiContainerImpl() {
 
     fun open() {
         println(this.challenger)
-        val dodgeChanger = container.get<Dodge, ChangerQualifier>()
+        val dodgeChanger = container.getAnnotated<Dodge, ChangerQualifier>()
         val dodgeChallenger = container.get(Dodge::class.java, ChallengerQualifier::class.java)
         println(dodgeChanger)
         println(dodgeChallenger)

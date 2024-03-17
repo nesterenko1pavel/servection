@@ -14,5 +14,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "servection"
-include(":app")
+include(":sample")
 include(":servection")

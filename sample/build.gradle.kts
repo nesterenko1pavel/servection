@@ -34,5 +34,5 @@ android {
 
 dependencies {
     implementation(project(":servection"))
-    implementation(kotlin("reflect"))
+    implementation("androidx.appcompat:appcompat:1.6.1")
 }
