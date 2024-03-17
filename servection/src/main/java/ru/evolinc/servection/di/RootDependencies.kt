@@ -18,7 +18,11 @@ class RootContainer {
         }
     }
 
-    inline fun <reified T : Any, reified R : Annotation> get(): T {
+    inline fun <reified T : Any> get(): T {
+        return get(T::class.java, null)
+    }
+
+    inline fun <reified T : Any, reified R : Annotation> getAnnotated(): T {
         return get(T::class.java, R::class.java)
     }
 

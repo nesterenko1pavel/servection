@@ -1,4 +1,4 @@
-package ru.evolinc.servection
+package ru.evolinc.servection.kotlinsample
 
 import ru.evolinc.servection.di.Qualifier
 
