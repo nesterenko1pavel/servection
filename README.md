@@ -24,7 +24,9 @@ dependencies {
 ```kotlin
 class MainFragment : Fragment(R.layout.fragment_main), DiContainer {
 
-    override val container: RootContainer by retainContainer(mainFragmentModule)
+    override val container: RootContainer by retainContainer(
+        modules = listOf(mainFragmentModule),
+    )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -32,8 +34,15 @@ class MainFragment : Fragment(R.layout.fragment_main), DiContainer {
     }
 }
 
-val mainFragmentModule: DiContainerModule = {
-    provide(SomeDep("hello"))
+val mainFragmentModule = module {
+  provide(SomeDep("hello"))
+}
+```
+
+- providing Factory dependency. It means that dependency will be instantiated every requested time:
+```kotlin
+val mainFragmentModule = module {
+    factory { RepositoryImpl() }
 }
 ```
 
@@ -50,7 +59,7 @@ data class MyDependency(val name: String)
 val myDependency = container.getAnnotated<MyDependency, MyDependencyQualifier>()
 ```
 
-- Auto creating dependency if it depends on already existing dependencies in container:
+- Auto creating dependency if it depends on already existing dependencies in current container ir in parent container:
 ```kotlin
 data class MainViewModel @Inject(isSingleInstancePerRequest = true) constructor(
     private val repository: IRepository,
@@ -58,6 +67,13 @@ data class MainViewModel @Inject(isSingleInstancePerRequest = true) constructor(
 ```
 
 - Extensions for android to retain container while recreating Activity or Fragment
+
+- Ability to request dependencies from another Container:
+```kotlin
+override val container: RootContainer by retainContainer(
+    parentRootContainerRequest = { (requireActivity().application as MainApp).container },
+)
+```
 
 ### Important to note, that:
 - If dependency was created using @Inject it means that life of dependency limited by

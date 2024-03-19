@@ -3,18 +3,28 @@ package ru.evolinc.servection.di
 import java.lang.reflect.Constructor
 import java.lang.reflect.Parameter
 
-class RootContainer {
+class RootContainer(
+    private val parentRootContainer: RootContainer? = null,
+) {
 
-    val dependencies: MutableMap<Class<out Any>, Any> = mutableMapOf()
-    private val cachedDependencies: MutableMap<Class<out Any>, Any> = mutableMapOf()
-    val qualifiedDependencies: MutableMap<Class<out Annotation>, Any> = mutableMapOf()
+    private val dependencies: MutableMap<Class<out Any>, Any> = mutableMapOf()
+    private val qualifiedDependencies: MutableMap<Class<out Annotation>, Any> = mutableMapOf()
 
-    inline fun <reified T : Any> provide(dependency: T) {
-        val qualifiedAnnotation = findQualifiedAnnotation(dependency::class.java)
+    inline fun <reified T : Any> factory(noinline factory: () -> T) {
+        val dependencyFactory = DependencyFactory(factory)
+        provide(T::class.java, dependencyFactory)
+    }
+
+    fun <T : Any> provide(dependency: T) {
+        provide(dependency::class.java, dependency)
+    }
+
+    fun <T : Any> provide(clazz: Class<out T>, dependency: T) {
+        val qualifiedAnnotation = findQualifiedAnnotation(clazz)
         if (qualifiedAnnotation != null) {
             qualifiedDependencies[qualifiedAnnotation.annotationClass.java] = dependency
         } else {
-            dependencies[T::class.java] = dependency
+            dependencies[clazz] = dependency
         }
     }
 
@@ -27,10 +37,11 @@ class RootContainer {
     }
 
     fun <T : Any> get(clazz: Class<T>, qualifierClazz: Class<out Annotation>? = null): T {
-        return getQualifiedDependency(qualifierClazz)
-            ?: dependencies[clazz] as? T
+        return getQualifiedDependency<T>(qualifierClazz)?.tryFactory()
+            ?: (dependencies[clazz] as? T)?.tryFactory()
             ?: createDependency(clazz)
-            ?: throw IllegalStateException("Missing [$clazz] dependency")
+            ?: parentRootContainer?.get(clazz, qualifierClazz)
+            ?: throw IllegalStateException("Missing [$clazz] dependency with qualifier [$qualifierClazz]")
     }
 
     private fun <T> getQualifiedDependency(qualifierClazz: Class<out Annotation>?): T? {
@@ -42,10 +53,9 @@ class RootContainer {
         val injectAnnotation = constructor.annotations.firstOrNull { it is Inject } as? Inject ?: return null
 
         return if (injectAnnotation.isSingleInstancePerRequest) {
-            cachedDependencies[clazz] as? T
-                ?: (create(constructor) as T).also {
-                    cachedDependencies[clazz] = it
-                }
+            (create(constructor) as T).also {
+                dependencies[clazz] = it
+            }
         } else {
             create(constructor) as T
         }
@@ -56,20 +66,13 @@ class RootContainer {
         val parametersList = mutableListOf<Any>()
         parameters.forEach { parameter ->
             val qualifiedAnnotation = findQualifiedAnnotation(parameter)
-            val value = if (qualifiedAnnotation != null) {
-                qualifiedDependencies[qualifiedAnnotation.annotationClass.java]
-                    ?: throw IllegalStateException(
-                        "In class [${constructor.name}] annotated parameter [$parameter] was not provided with qualifier"
-                    )
-            } else {
-                get(parameter.type)
-            }
+            val value = get(parameter.type, qualifiedAnnotation?.annotationClass?.java)
             parametersList.add(value)
         }
         return constructor.newInstance(*parametersList.toTypedArray()) as T
     }
 
-    fun findQualifiedAnnotation(clazz: Class<out Any>): Annotation? {
+    private fun findQualifiedAnnotation(clazz: Class<out Any>): Annotation? {
         return findQualifiedAnnotation(clazz.annotations)
     }
 

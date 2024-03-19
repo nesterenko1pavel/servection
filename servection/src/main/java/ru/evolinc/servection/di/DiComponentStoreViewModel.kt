@@ -10,7 +10,8 @@ class DiComponentStoreViewModel(
 ) : ViewModel()
 
 fun ViewModelStoreOwner.retainContainer(
-    module: DiContainerModule? = null,
+    modules: List<DiModule> = emptyList(),
+    parentRootContainerRequest: () -> RootContainer? = { null },
     overrideViewModelStore: ViewModelStore? = null,
 ): Lazy<RootContainer> {
     return lazy {
@@ -18,12 +19,20 @@ fun ViewModelStoreOwner.retainContainer(
             overrideViewModelStore ?: viewModelStore,
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return DiComponentStoreViewModel(RootContainer()) as T
+                    return DiComponentStoreViewModel(RootContainer(parentRootContainerRequest())) as T
                 }
             }
         )
         val viewModel = viewModelProvider[DiComponentStoreViewModel::class.java]
-        module?.let { viewModel.container.it() }
+        modules.forEach { module -> module.module.invoke(viewModel.container) }
         viewModel.container
     }
 }
+
+fun module(module: RootContainer.() -> Unit): DiModule {
+    return DiModule(module)
+}
+
+data class DiModule(
+    val module: RootContainer.() -> Unit,
+)

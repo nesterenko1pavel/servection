@@ -12,7 +12,10 @@ import ru.evolinc.servection.di.retainContainer
 
 class MainFragment : Fragment(R.layout.fragment_main), DiContainer {
 
-    override val container: RootContainer by retainContainer(mainFragmentModule)
+    override val container: RootContainer by retainContainer(
+        modules = listOf(mainFragmentModule),
+        parentRootContainerRequest = { requestAppContainer() },
+    )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

@@ -12,6 +12,7 @@ fun main() {
     val dodgeChallenger = DodgeChallenger("yellow")
     carMuseum.provideChanger(dodgeChanger)
     carMuseum.provideChallenger(dodgeChallenger)
+    carMuseum.factoryRepositoryImpl { RepositoryImpl() }
     carMuseum.open()
 }
 
@@ -28,6 +29,10 @@ class CarMuseum : DiContainer by DiContainerImpl() {
         container.provide<Dodge>(dodgeChallenger)
     }
 
+    fun factoryRepositoryImpl(repositoryFactory: () -> RepositoryImpl) {
+        container.factory(repositoryFactory)
+    }
+
     fun open() {
         println(this.challenger)
         val dodgeChanger = container.getAnnotated<Dodge, ChangerQualifier>()
@@ -41,6 +46,9 @@ class CarMuseum : DiContainer by DiContainerImpl() {
         println(carSharer2)
 
         println(foreignMuseum)
+
+        println(container.get<RepositoryImpl>())
+        println(container.get<RepositoryImpl>())
     }
 }
 
@@ -62,3 +70,5 @@ data class DodgeChanger(val color: String) : Dodge
 
 @ChallengerQualifier
 data class DodgeChallenger(val color: String) : Dodge
+
+class RepositoryImpl

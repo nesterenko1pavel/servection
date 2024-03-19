@@ -1,7 +1,5 @@
 package ru.evolinc.servection.di
 
-typealias DiContainerModule = RootContainer.() -> Unit
-
 interface DiContainer {
 
     val container: RootContainer

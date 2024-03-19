@@ -6,8 +6,9 @@ import ru.evolinc.servection.di.Inject
 
 class MainFragmentViewModel @Inject(isSingleInstancePerRequest = true) constructor(
     someDep: SomeDep,
+    @InterAppQualifier interAppDependency: InterAppDependency,
 ){
     init {
-        Log.i("testapp", "viewModel: $someDep")
+        Log.i("testapp", "viewModel: $someDep, $interAppDependency")
     }
 }
