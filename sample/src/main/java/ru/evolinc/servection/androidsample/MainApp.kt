@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.fragment.app.Fragment
 import ru.evolinc.servection.di.DiContainer
 import ru.evolinc.servection.di.DiContainerImpl
-import ru.evolinc.servection.di.Qualifier
+import ru.evolinc.servection.annotations.Qualifier
 import ru.evolinc.servection.di.RootContainer
 
 class MainApp : Application(), DiContainer by DiContainerImpl() {

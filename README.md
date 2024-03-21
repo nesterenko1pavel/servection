@@ -75,6 +75,23 @@ override val container: RootContainer by retainContainer(
 )
 ```
 
+- You can store Map collections in the container. Сollections are separated based on key and value class. There is example where container contains 2 different instance of Map:
+```kotlin
+val exampleModule = module {
+  intoMap(
+    "one" to "two",
+    "one1" to "two",
+    "one2" to true,
+    "one3" to false,
+  )
+}
+
+class ExampleViewModel @Inject constructor(
+  @MapDependency(String::class, String::class) stringMap: Map<String, String>, // {one=two, one1=two}
+  @MapDependency(String::class, Boolean::class) booleanMap: Map<String, Boolean>, // {one2=true, one3=false}
+)
+```
+
 ### Important to note, that:
 - If dependency was created using @Inject it means that life of dependency limited by
   - `isSingleInstancePerRequest`. If true - it means that dependency will be single instance during whole root container life. If false - it means that dependency will be instantiated every request from container

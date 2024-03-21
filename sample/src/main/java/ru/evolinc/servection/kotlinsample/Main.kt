@@ -2,7 +2,7 @@ package ru.evolinc.servection.kotlinsample
 
 import ru.evolinc.servection.di.DiContainer
 import ru.evolinc.servection.di.DiContainerImpl
-import ru.evolinc.servection.di.Inject
+import ru.evolinc.servection.annotations.Inject
 import ru.evolinc.servection.di.inject
 import ru.evolinc.servection.di.injectAnnotated
 

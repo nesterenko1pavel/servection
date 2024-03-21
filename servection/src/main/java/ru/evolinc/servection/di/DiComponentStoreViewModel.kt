@@ -24,7 +24,7 @@ fun ViewModelStoreOwner.retainContainer(
             }
         )
         val viewModel = viewModelProvider[DiComponentStoreViewModel::class.java]
-        modules.forEach { module -> module.module.invoke(viewModel.container) }
+        viewModel.container.uploadModules(*modules.toTypedArray())
         viewModel.container
     }
 }
