@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 
-class DiComponentStoreViewModel(
+class DiContainerStoreViewModel(
     val container: RootContainer,
 ) : ViewModel()
 
@@ -19,11 +19,11 @@ fun ViewModelStoreOwner.retainContainer(
             overrideViewModelStore ?: viewModelStore,
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return DiComponentStoreViewModel(RootContainer(parentRootContainerRequest())) as T
+                    return DiContainerStoreViewModel(RootContainer(parentRootContainerRequest())) as T
                 }
             }
         )
-        val viewModel = viewModelProvider[DiComponentStoreViewModel::class.java]
+        val viewModel = viewModelProvider[DiContainerStoreViewModel::class.java]
         viewModel.container.uploadModules(*modules.toTypedArray())
         viewModel.container
     }

@@ -25,7 +25,7 @@ class RootContainer(
     }
 
     inline fun <reified T : Any> factory(noinline factory: () -> T) {
-        requireNotCollection(T::class)
+        T::class.requireNotCollection()
 
         val dependencyFactory = DependencyFactory(factory)
         provide(T::class.java, dependencyFactory)
@@ -36,7 +36,7 @@ class RootContainer(
     }
 
     fun <T : Any> provide(clazz: Class<out T>, dependency: T) {
-        requireNotCollection(dependency::class)
+        dependency::class.requireNotCollection()
 
         val qualifiedAnnotation = findQualifiedAnnotation(clazz)
         if (qualifiedAnnotation != null) {
@@ -46,8 +46,8 @@ class RootContainer(
         }
     }
 
-    fun requireNotCollection(clazz: KClass<*>) {
-        if (clazz.isSubclassOf(Iterable::class) || clazz.isSubclassOf(Map::class))
+    fun <T : Any> KClass<T>.requireNotCollection() {
+        if (isSubclassOf(Iterable::class) || isSubclassOf(Map::class))
             throw IllegalStateException("Library is supporting work only with Map collection and only using [intoMap]")
     }
 
